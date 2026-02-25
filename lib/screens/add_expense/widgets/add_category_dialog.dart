@@ -14,6 +14,8 @@ class AddCategoryDialog extends ConsumerStatefulWidget {
 
 class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
   Database? _database;
+  bool _isDbReady = false;
+
   String categoryName = '';
   String selectedIcon = "home";
 
@@ -38,23 +40,23 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'expense.db');
 
-    _database = await openDatabase(
-      path,
-      version: 1,
-      onCreate: (db, version) async {
-        await db.execute('''
-          CREATE TABLE categories (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            icon TEXT NOT NULL
-          )
-        ''');
-      },
-    );
+    _database = await openDatabase(path, version: 1);
+
+    await _database!.execute('''
+      CREATE TABLE IF NOT EXISTS categories (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        icon TEXT NOT NULL
+      )
+    ''');
+
+    setState(() {
+      _isDbReady = true;
+    });
   }
 
   Future<void> _saveCategory(BuildContext context) async {
-    if (_database == null) {
+    if (!_isDbReady || _database == null) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("Database not ready")));
@@ -73,13 +75,15 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
       'icon': selectedIcon,
     });
 
+    ref.invalidate(categoriesProvider);
+
     if (mounted) Navigator.of(context).pop(true);
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: 20),
+      padding: const EdgeInsets.only(top: 20),
       child: Column(
         children: [
           Material(
@@ -87,19 +91,19 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
             borderRadius: BorderRadius.circular(20),
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
-              onTap: () async {
-                final result = await _showAddDialog(context);
-                if (result == true) {
-                  ref.invalidate(categoriesProvider);
-                }
-              },
+              onTap: _isDbReady
+                  ? () async {
+                      final result = await _showAddDialog(context);
+                      if (result == true) ref.invalidate(categoriesProvider);
+                    }
+                  : null,
               child: Container(
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Center(
+                child: const Center(
                   child: Icon(
                     Icons.add,
                     color: Colors.deepPurpleAccent,
@@ -109,20 +113,11 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
               ),
             ),
           ),
-          Text("ADD", style: TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 5),
+          const Text("ADD", style: TextStyle(fontWeight: FontWeight.w600)),
         ],
       ),
     );
-    // return TextButton.icon(
-    //   icon: const Icon(Icons.add),
-    //   label: const Text("ADD"),
-    //   onPressed: () async {
-    //     final result = await _showAddDialog(context);
-    //     if (result == true) {
-    //       ref.invalidate(categoriesProvider);
-    //     }
-    //   },
-    // );
   }
 
   Future<bool?> _showAddDialog(BuildContext context) {
@@ -141,13 +136,8 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
                     TextField(
                       decoration: const InputDecoration(
                         labelText: "Category Name",
-                        labelStyle: TextStyle(color: Colors.black),
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black),
-                        ),
+                        border: OutlineInputBorder(),
+                        focusedBorder: OutlineInputBorder(),
                       ),
                       onChanged: (value) => categoryName = value,
                     ),
@@ -181,7 +171,10 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(false),
-                  child: Text("Cancel", style: TextStyle(color: Colors.black)),
+                  child: const Text(
+                    "Cancel",
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
                 ElevatedButton(
                   onPressed: () => _saveCategory(context),

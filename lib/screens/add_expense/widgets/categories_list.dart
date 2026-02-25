@@ -37,65 +37,77 @@ class CategoriesList extends ConsumerWidget {
           AddCategoryDialog(),
           const SizedBox(height: 16),
           Expanded(
-            child: categoriesAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text("Error: $e")),
-              data: (categories) {
-                if (categories.isEmpty) {
-                  return const Center(child: Text("No categories yet"));
-                }
+            child: categoriesAsync.hasValue
+                ? categoriesAsync.when(
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (e, _) => Center(child: Text("Error: $e")),
+                    data: (categories) {
+                      if (categories.isEmpty) {
+                        return const Center(child: Text("No categories yet"));
+                      }
 
-                return GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 4,
-                    mainAxisSpacing: 20,
-                    crossAxisSpacing: 25,
-                    childAspectRatio: 0.8,
-                  ),
-                  itemCount: categories.length,
-                  itemBuilder: (context, index) {
-                    final category = categories[index];
-                    final icon = iconList[category.icon] ?? Icons.category;
-                    final color = iconColors[category.icon] ?? Colors.grey;
+                      return GridView.builder(
+                        padding: const EdgeInsets.all(16),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 4,
+                              mainAxisSpacing: 20,
+                              crossAxisSpacing: 25,
+                              childAspectRatio: 0.8,
+                            ),
+                        itemCount: categories.length,
+                        itemBuilder: (context, index) {
+                          final category = categories[index];
+                          final icon =
+                              iconList[category.icon] ?? Icons.category;
+                          final color =
+                              iconColors[category.icon] ?? Colors.grey;
 
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Expanded(
-                          child: Material(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(20),
-                              splashColor: color.withValues(alpha: 0.3),
-                              highlightColor: color.withValues(alpha: 0.1),
-                              onTap: () {},
-                              child: Container(
-                                decoration: BoxDecoration(
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Expanded(
+                                child: Material(
+                                  color: Colors.white,
                                   borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Center(
-                                  child: Icon(icon, color: color, size: 40),
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(20),
+                                    splashColor: color.withValues(alpha: 0.3),
+                                    highlightColor: color.withValues(
+                                      alpha: 0.1,
+                                    ),
+                                    onTap: () {},
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Center(
+                                        child: Icon(
+                                          icon,
+                                          color: color,
+                                          size: 40,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          category.name.toUpperCase(),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(fontSize: 12),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-            ),
+                              const SizedBox(height: 4),
+                              Text(
+                                category.name.toUpperCase(),
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(fontSize: 12),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  )
+                : Text("No data yet", style: TextStyle(fontSize: 24),),
           ),
         ],
       ),
