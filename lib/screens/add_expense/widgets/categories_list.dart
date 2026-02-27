@@ -1,4 +1,5 @@
 import 'package:expense/provider/providers.dart';
+import 'package:expense/screens/add_expense/widgets/add_expense_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -7,29 +8,11 @@ import 'add_category_dialog.dart';
 class CategoriesList extends ConsumerWidget {
   const CategoriesList({super.key});
 
-  final Map<String, IconData> iconList = const {
-    "home": Icons.home,
-    "transport": Icons.directions_car,
-    "food": Icons.fastfood,
-    "groceries": FontAwesomeIcons.basketShopping,
-    "electric": Icons.electric_bolt,
-    "travel": Icons.flight,
-    "internet": Icons.wifi,
-  };
-
-  final Map<String, Color> iconColors = const {
-    "home": Colors.purpleAccent,
-    "transport": Colors.red,
-    "food": Colors.orange,
-    "groceries": Colors.purple,
-    "electric": Colors.yellow,
-    "travel": Colors.blueAccent,
-    "internet": Colors.deepPurpleAccent,
-  };
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final categoriesAsync = ref.watch(categoriesProvider);
+    final iconColors = ref.watch(listOfColorsProvider);
+    final iconList = ref.watch(iconListProvider);
 
     return Expanded(
       child: Column(
@@ -60,7 +43,7 @@ class CategoriesList extends ConsumerWidget {
                         itemBuilder: (context, index) {
                           final category = categories[index];
                           final icon =
-                              iconList[category.icon] ?? Icons.category;
+                              iconList[category.icon] ?? FontAwesomeIcons.question;
                           final color =
                               iconColors[category.icon] ?? Colors.grey;
 
@@ -77,7 +60,16 @@ class CategoriesList extends ConsumerWidget {
                                     highlightColor: color.withValues(
                                       alpha: 0.1,
                                     ),
-                                    onTap: () {},
+                                    onTap: () async {
+                                      final result =
+                                          await AddExpenseDialog.show(
+                                            context,
+                                            categoryId: category.id,
+                                          );
+                                      if (result == true) {
+                                        ref.invalidate(categoriesProvider);
+                                      }
+                                    },
                                     child: Container(
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(20),
@@ -107,7 +99,7 @@ class CategoriesList extends ConsumerWidget {
                       );
                     },
                   )
-                : Text("No data yet", style: TextStyle(fontSize: 24),),
+                : Text("No data yet", style: TextStyle(fontSize: 24)),
           ),
         ],
       ),

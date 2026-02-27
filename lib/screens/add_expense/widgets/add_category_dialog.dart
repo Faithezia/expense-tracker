@@ -1,9 +1,8 @@
 import 'package:expense/provider/providers.dart';
+import 'package:expense/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 
 class AddCategoryDialog extends ConsumerStatefulWidget {
   const AddCategoryDialog({super.key});
@@ -13,9 +12,6 @@ class AddCategoryDialog extends ConsumerStatefulWidget {
 }
 
 class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
-  Database? _database;
-  bool _isDbReady = false;
-
   String categoryName = '';
   String selectedIcon = "home";
 
@@ -30,38 +26,8 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
     "internet": Icons.wifi,
   };
 
-  @override
-  void initState() {
-    super.initState();
-    _initDB();
-  }
-
-  Future<void> _initDB() async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'expense.db');
-
-    _database = await openDatabase(path, version: 1);
-
-    await _database!.execute('''
-      CREATE TABLE IF NOT EXISTS categories (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        icon TEXT NOT NULL
-      )
-    ''');
-
-    setState(() {
-      _isDbReady = true;
-    });
-  }
-
   Future<void> _saveCategory(BuildContext context) async {
-    if (!_isDbReady || _database == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Database not ready")));
-      return;
-    }
+    final db = await DatabaseInit.instance.database;
 
     if (categoryName.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -70,7 +36,7 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
       return;
     }
 
-    await _database!.insert('categories', {
+    await db.insert('categories', {
       'name': categoryName.trim(),
       'icon': selectedIcon,
     });
@@ -91,12 +57,10 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
             borderRadius: BorderRadius.circular(20),
             child: InkWell(
               borderRadius: BorderRadius.circular(20),
-              onTap: _isDbReady
-                  ? () async {
-                      final result = await _showAddDialog(context);
-                      if (result == true) ref.invalidate(categoriesProvider);
-                    }
-                  : null,
+              onTap: () async {
+                final result = await _showAddDialog(context);
+                if (result == true) ref.invalidate(categoriesProvider);
+              },
               child: Container(
                 width: 60,
                 height: 60,
@@ -180,10 +144,13 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
                   onPressed: () => _saveCategory(context),
                   style: ButtonStyle(
                     backgroundColor: WidgetStateProperty.all(
-                      Theme.of(context).colorScheme.secondary,
+                      Theme.of(context).colorScheme.primary,
                     ),
                   ),
-                  child: const Text("Save"),
+                  child: const Text(
+                    "Save",
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             );

@@ -1,5 +1,5 @@
 import '../models/category_model.dart';
-import 'database_service.dart';
+import '../services/database_service.dart';
 
 class CategoryRepository {
   Future<List<CategoryModel>> getCategories() async {
