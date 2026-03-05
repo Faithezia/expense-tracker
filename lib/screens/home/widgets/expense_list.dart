@@ -1,5 +1,7 @@
-import 'package:expense/provider/providers.dart';
+import 'package:expense/provider/category_providers.dart';
+import 'package:expense/provider/expense_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -13,28 +15,32 @@ class ExpenseList extends StatefulHookConsumerWidget {
 class _ExpenseListState extends ConsumerState<ExpenseList> {
   @override
   Widget build(BuildContext context) {
-    final expensesList = ref.watch(totalExpenseProvider);
+    final topTen = ref.watch(topTenExpenses);
     final iconColors = ref.watch(listOfColorsProvider);
     final iconList = ref.watch(iconListProvider);
-
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 20, left: 16, right: 16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
+            children: [
               Text(
                 "Recent Transaction",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
-              Text("See All", style: TextStyle(color: Colors.black54)),
+              TextButton(
+                onPressed: () {
+                  context.pushNamed('all_transaction');
+                },
+                child: Text("See All", style: TextStyle(color: Colors.black54)),
+              ),
             ],
           ),
         ),
 
-        expensesList.hasValue
-            ? expensesList.when(
+        topTen.hasValue
+            ? topTen.when(
                 data: (data) {
                   if (data.isEmpty) {
                     return const Center(
@@ -50,6 +56,7 @@ class _ExpenseListState extends ConsumerState<ExpenseList> {
                     physics: NeverScrollableScrollPhysics(),
                     itemBuilder: (context, index) {
                       final category = data[index];
+
                       final icon =
                           iconList[category.categoryIcon] ?? Icons.category;
                       final color =

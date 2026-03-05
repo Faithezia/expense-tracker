@@ -1,8 +1,11 @@
+import 'package:expense/provider/category_providers.dart';
+import 'package:expense/screens/add_expense/add_expense.dart';
+import 'package:expense/screens/analytics/analytics_screen.dart';
+import 'package:expense/screens/home/home_screen.dart';
+import 'package:expense/screens/message/message_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:expense/provider/providers.dart';
 
 class BottomNavigationBarWidget extends ConsumerStatefulWidget {
   const BottomNavigationBarWidget({super.key});
@@ -14,45 +17,49 @@ class BottomNavigationBarWidget extends ConsumerStatefulWidget {
 
 class _BottomNavigationBarWidgetState
     extends ConsumerState<BottomNavigationBarWidget> {
-  final List<String> _routes = [
-    '/',
-    '/transaction', 
-    '/add_expense',
-    '/analytics',
-    '/account',
+  final List<Widget> _pages = [
+    HomeScreen(),
+    MessageScreen(),
+    AddExpense(),
+    AnalyticsScreen(),
+    // AccountScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     final currPage = ref.watch(currentPage);
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 0, bottom: 40, left: 30, right: 30),
-      child: Material(
-        color: Colors.transparent,
-        child: Container(
-          height: 60,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(40),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                spreadRadius: 3,
-                blurRadius: 7,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildNavItem(FontAwesomeIcons.house, 0, currPage),
-              _buildNavItem(FontAwesomeIcons.receipt, 1, currPage),
-              _buildNavItem(FontAwesomeIcons.plus, 2, currPage),
-              _buildNavItem(FontAwesomeIcons.chartSimple, 3, currPage),
-              _buildNavItem(FontAwesomeIcons.user, 4, currPage),
-            ],
+    return Scaffold(
+      extendBody: true,
+      body: IndexedStack(index: currPage, children: _pages),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.only(top: 0, bottom: 15, left: 20, right: 20),
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            height: 70,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(40),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  spreadRadius: 3,
+                  blurRadius: 7,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildNavItem(FontAwesomeIcons.house, 0, currPage),
+                _buildNavItem(FontAwesomeIcons.message, 1, currPage),
+                _buildNavItem(FontAwesomeIcons.plus, 2, currPage),
+                _buildNavItem(FontAwesomeIcons.chartSimple, 3, currPage),
+                // _buildNavItem(FontAwesomeIcons.user, 4, currPage),
+              ],
+            ),
           ),
         ),
       ),
@@ -66,12 +73,11 @@ class _BottomNavigationBarWidgetState
       onTap: () {
         setState(() {
           ref.read(currentPage.notifier).state = index;
-          context.go(_routes[index]);
         });
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: isActive
@@ -80,7 +86,7 @@ class _BottomNavigationBarWidgetState
         ),
         child: Icon(
           icon,
-          size: 22,
+          size: 24,
           color: isActive ? Colors.white : Colors.grey,
         ),
       ),

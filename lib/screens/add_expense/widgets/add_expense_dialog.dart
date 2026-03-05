@@ -1,4 +1,4 @@
-import 'package:expense/provider/providers.dart';
+import 'package:expense/provider/expense_provider.dart';
 import 'package:expense/repositories/expenses_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -34,7 +34,9 @@ class _AddExpenseDialogState extends ConsumerState<AddExpenseDialog> {
     await ExpenseRepository().insertExpense(widget.categoryId, expense);
 
     ref.invalidate(totalExpenseProvider);
-
+    ref.invalidate(topTenExpenses);
+    ref.invalidate(getTotalExpenseProvider);
+    ref.invalidate(monthlyExpenseProvider);
     if (mounted) Navigator.of(context).pop(true);
   }
 
@@ -47,7 +49,7 @@ class _AddExpenseDialogState extends ConsumerState<AddExpenseDialog> {
         keyboardType: TextInputType.number,
         decoration: const InputDecoration(
           labelText: "Total Expense",
-          border: OutlineInputBorder(),
+          prefixText: "₱",
         ),
         onChanged: (value) {
           ref.read(totalExpenseInput.notifier).state =

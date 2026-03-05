@@ -1,4 +1,4 @@
-import 'package:expense/provider/providers.dart';
+import 'package:expense/provider/category_providers.dart';
 import 'package:expense/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -42,7 +42,8 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
     });
 
     ref.invalidate(categoriesProvider);
-
+    categoryName = '';
+    selectedIcon = 'home';
     if (mounted) Navigator.of(context).pop(true);
   }
 
@@ -70,7 +71,7 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
                 child: const Center(
                   child: Icon(
                     Icons.add,
-                    color: Colors.deepPurpleAccent,
+                    color: Color.fromRGBO(245, 119, 153, 1),
                     size: 40,
                   ),
                 ),
@@ -78,7 +79,10 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
             ),
           ),
           const SizedBox(height: 5),
-          const Text("ADD", style: TextStyle(fontWeight: FontWeight.w600)),
+          const Text(
+            "ADD CATEGORY",
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
         ],
       ),
     );
@@ -100,11 +104,11 @@ class _AddCategoryDialogState extends ConsumerState<AddCategoryDialog> {
                     TextField(
                       decoration: const InputDecoration(
                         labelText: "Category Name",
-                        border: OutlineInputBorder(),
-                        focusedBorder: OutlineInputBorder(),
                       ),
                       onChanged: (value) => categoryName = value,
+                      textAlign: TextAlign.center,
                     ),
+
                     const SizedBox(height: 20),
                     SizedBox(
                       height: 150,

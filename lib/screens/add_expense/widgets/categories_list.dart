@@ -1,9 +1,8 @@
-import 'package:expense/provider/providers.dart';
+import 'package:expense/provider/category_providers.dart';
 import 'package:expense/screens/add_expense/widgets/add_expense_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'add_category_dialog.dart';
 
 class CategoriesList extends ConsumerWidget {
   const CategoriesList({super.key});
@@ -17,7 +16,6 @@ class CategoriesList extends ConsumerWidget {
     return Expanded(
       child: Column(
         children: [
-          AddCategoryDialog(),
           const SizedBox(height: 16),
           Expanded(
             child: categoriesAsync.hasValue
@@ -36,14 +34,15 @@ class CategoriesList extends ConsumerWidget {
                             const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 4,
                               mainAxisSpacing: 20,
-                              crossAxisSpacing: 25,
+                              crossAxisSpacing: 20,
                               childAspectRatio: 0.8,
                             ),
                         itemCount: categories.length,
                         itemBuilder: (context, index) {
                           final category = categories[index];
                           final icon =
-                              iconList[category.icon] ?? FontAwesomeIcons.question;
+                              iconList[category.icon] ??
+                              FontAwesomeIcons.question;
                           final color =
                               iconColors[category.icon] ?? Colors.grey;
 
@@ -74,6 +73,7 @@ class CategoriesList extends ConsumerWidget {
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(20),
                                       ),
+                                      height: 80,
                                       child: Center(
                                         child: Icon(
                                           icon,

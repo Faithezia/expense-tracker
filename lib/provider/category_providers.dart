@@ -1,9 +1,7 @@
 import 'dart:ui';
 
 import 'package:expense/models/category_model.dart';
-import 'package:expense/models/expense_model.dart';
 import 'package:expense/repositories/category_repository.dart';
-import 'package:expense/repositories/expenses_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -11,13 +9,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 final currentPage = StateProvider<int>((ref) => 0);
 final searchValue = StateProvider<String>((ref) => "");
-
 final categoryRepositoryProvider = StateProvider((ref) {
   return CategoryRepository();
-});
-
-final totalExpenseRepositoryProvider = StateProvider((ref) {
-  return ExpenseRepository();
 });
 
 final categoriesProvider = FutureProvider<List<CategoryModel>>((ref) async {
@@ -25,13 +18,7 @@ final categoriesProvider = FutureProvider<List<CategoryModel>>((ref) async {
   return repo.getCategories();
 });
 
-final totalExpenseProvider = FutureProvider<List<ExpenseModel>>((ref) async {
-  final repo = ref.watch(totalExpenseRepositoryProvider);
-  return repo.getExpenses();
-});
-
 final selectedIconCategory = StateProvider<String>((ref) => "home");
-final totalExpenseInput = StateProvider<double>((ref) => 0);
 
 final listOfColorsProvider = StateProvider<Map<String, Color>>(
   (ref) => {
@@ -43,7 +30,6 @@ final listOfColorsProvider = StateProvider<Map<String, Color>>(
     "travel": Colors.blueAccent,
     "internet": Colors.deepPurpleAccent,
     "water": Colors.blue,
-    
   },
 );
 

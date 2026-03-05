@@ -26,3 +26,10 @@ class ExpenseModel {
     );
   }
 }
+
+class ChartData {
+  final String label;
+  final double amount;
+
+  ChartData({required this.label, required this.amount});
+}
