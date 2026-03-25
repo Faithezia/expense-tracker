@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
         GoRoute(
           path: '/all_transaction',
           builder: (context, state) => const AllTransactionScreen(),
-          name: 'all_transaction'
+          name: 'all_transaction',
         ),
         GoRoute(
           path: '/add_expense',
